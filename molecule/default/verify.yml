@@ -1,0 +1,6 @@
+- hosts: all
+  name: Verify
+  tasks:
+  - assert:
+      that: true
+    name: Example assertion

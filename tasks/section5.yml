@@ -1,0 +1,801 @@
+- name: SCORED | Section 5.1 | PATCH | Configure cron
+  package:
+    name: cronie
+    state: present
+
+- name: SCORED | 5.1.1 | PATCH | Ensure cron daemon is enabled
+  service:
+    name: crond
+    enabled: yes
+  when:
+    - rhel8_cis_rule_5_1_1
+  tags:
+    - level1
+    - level2
+    - patch
+    - rule_5.1.1
+
+- name: SCORED | 5.1.2 | PATCH | Ensure permissions on /etc/crontab are configured
+  file:
+    dest: /etc/crontab
+    owner: root
+    group: root
+    mode: 0600
+  when:
+    - rhel8_cis_rule_5_1_2
+  tags:
+    - level1
+    - level2
+    - patch
+    - rule_5.1.2
+
+- name: SCORED | 5.1.3 | PATCH | Ensure permissions on /etc/cron.hourly are configured
+  file:
+    dest: /etc/cron.hourly
+    state: directory
+    owner: root
+    group: root
+    mode: 0700
+  when:
+    - rhel8_cis_rule_5_1_3
+  tags:
+    - level1
+    - level2
+    - patch
+    - rule_5.1.3
+
+- name: SCORED | 5.1.4 | PATCH | Ensure permissions on /etc/cron.daily are configured
+  file:
+    dest: /etc/cron.daily
+    state: directory
+    owner: root
+    group: root
+    mode: 0700
+  when:
+    - rhel8_cis_rule_5_1_4
+  tags:
+    - level1
+    - level2
+    - patch
+    - rule_5.1.4
+
+- name: SCORED | 5.1.5 | PATCH | Ensure permissions on /etc/cron.weekly are configured
+  file:
+    dest: /etc/cron.weekly
+    state: directory
+    owner: root
+    group: root
+    mode: 0700
+  when:
+    - rhel8_cis_rule_5_1_5
+  tags:
+    - level1
+    - level2
+    - patch
+    - rule_5.1.5
+
+- name: SCORED | 5.1.6 | PATCH | Ensure permissions on /etc/cron.monthly are configured
+  file:
+    dest: /etc/cron.monthly
+    state: directory
+    owner: root
+    group: root
+    mode: 0700
+  when:
+    - rhel8_cis_rule_5_1_6
+  tags:
+    - level1
+    - level2
+    - patch
+    - rule_5.1.6
+
+- name: SCORED | 5.1.7 | PATCH | Ensure permissions on /etc/cron.d are configured
+  file:
+    dest: /etc/cron.d
+    state: directory
+    owner: root
+    group: root
+    mode: 0700
+  when:
+    - rhel8_cis_rule_5_1_7
+  tags:
+    - level1
+    - level2
+    - patch
+    - rule_5.1.7
+
+- name: SCORED | 5.1.8 | PATCH | Ensure at/cron is restricted to authorized users
+  block:
+    - name: SCORED | 5.1.8 | PATCH | Ensure at/cron is restricted to authorized users
+      file:
+        dest: /etc/at.deny
+        state: absent
+
+    - name: SCORED | 5.1.8 | PATCH | Check if at.allow exists
+      stat:
+        path: /etc/at.allow
+      register: p
+
+    - name: SCORED | 5.1.8 | PATCH | Ensure at/cron is restricted to authorized users
+      file:
+        dest: /etc/at.allow
+        state: '{{ "file" if  p.stat.exists else "touch" }}'
+        owner: root
+        group: root
+        mode: 0600
+
+    - name: SCORED | 5.1.8 | PATCH | Ensure at/cron is restricted to authorized users
+      file:
+        dest: /etc/cron.deny
+        state: absent
+
+    - name: SCORED | 5.1.8 | PATCH | Check if cron.allow exists
+      stat:
+        path: /etc/cron.allow
+      register: p
+
+    - name: SCORED | 5.1.8 | PATCH | Ensure at/cron is restricted to authorized users
+      file:
+        dest: /etc/cron.allow
+        state: '{{ "file" if  p.stat.exists else "touch" }}'
+        owner: root
+        group: root
+        mode: 0600
+  when:
+    - rhel8_cis_rule_5_1_8
+  tags:
+    - level1
+    - level2
+    - patch
+    - rule_5.1.8
+
+- name: SCORED | 5.2.1 | PATCH | Ensure permissions on /etc/ssh/sshd_config are configured
+  file:
+    dest: /etc/ssh/sshd_config
+    state: file
+    owner: root
+    group: root
+    mode: 0600
+  when:
+    - rhel8_cis_rule_5_2_1
+  tags:
+    - level1
+    - level2
+    - patch
+    - rule_5.2.1
+
+- name: SCORED | 5.2.2 | PATCH | Ensure SSH access is limited
+  block:
+    - name: SCORED | 5.2.2 | PATCH | Ensure SSH access is limited - allowusers
+      lineinfile:
+        state: present
+        dest: /etc/ssh/sshd_config
+        regexp: ^AllowUsers
+        line: AllowUsers {{ rhel8_cis_sshd['allowusers'] }}
+        validate: /usr/sbin/sshd -T -f %s
+      notify:
+        - restart sshd
+      when:
+        - "'allowusers' in rhel8_cis_sshd"
+
+    - name: SCORED | 5.2.2 | PATCH | Ensure SSH access is limited - allowgroups
+      lineinfile:
+        state: present
+        dest: /etc/ssh/sshd_config
+        regexp: ^AllowGroups
+        line: AllowGroups {{ rhel8_cis_sshd['allowgroups'] }}
+        validate: /usr/sbin/sshd -T -f %s
+      notify:
+        - restart sshd
+      when:
+        - "'allowgroups' in rhel8_cis_sshd"
+
+    - name: SCORED | 5.2.2 | PATCH | Ensure SSH access is limited - denyusers
+      lineinfile:
+        state: present
+        dest: /etc/ssh/sshd_config
+        regexp: ^DenyUsers
+        line: DenyUsers {{ rhel8_cis_sshd['denyusers'] }}
+        validate: /usr/sbin/sshd -T -f %s
+      notify:
+        - restart sshd
+      when:
+        - "'denyusers' in rhel8_cis_sshd"
+
+    - name: SCORED | 5.2.2 | PATCH | Ensure SSH access is limited - denygroups
+      lineinfile:
+        state: present
+        dest: /etc/ssh/sshd_config
+        regexp: ^DenyGroups
+        line: DenyGroups {{ rhel8_cis_sshd['denygroups'] }}
+        validate: /usr/sbin/sshd -T -f %s
+      notify:
+        - restart sshd
+      when:
+        - "'denygroups' in rhel8_cis_sshd"
+  when:
+    - rhel8_cis_rule_5_2_2
+  tags:
+    - level1
+    - level2
+    - patch
+    - rule_5.2.2
+
+- name: SCORED | 5.2.3 | PATCH | Ensure permissions on SSH private host key files
+    are configured
+  block:
+    - name: SCORED | 5.2.3 | PATCH | Ensure permissions on SSH private host key files are configured - find
+      find:
+        paths: /etc/ssh
+        patterns: ssh_host_*_key
+      register: ssh_host_keys
+
+    - name: SCORED | 5.2.3 | PATCH | Ensure permissions on SSH private host key files are configured - update
+      file:
+        dest: '{{ item }}'
+        owner: root
+        group: root
+        mode: 0600
+      loop: "{{ ssh_host_keys.files | map(attribute='path') | list }}"
+  when:
+    - rhel8_cis_rule_5_2_3
+  tags:
+    - level1
+    - level2
+    - patch
+    - rule_5.2.3
+
+- name: SCORED | 5.2.4 | PATCH | Ensure permissions on SSH public host key files are
+    configured
+  block:
+    - name: SCORED | 5.2.4 | PATCH | Ensure permissions on SSH public host key files are configured - find
+      find:
+        paths: /etc/ssh
+        patterns: ssh_host_*_key.pub
+      register: ssh_host_keys
+
+    - name: SCORED | 5.2.4 | PATCH | Ensure permissions on SSH public host key files are configured - update
+      file:
+        dest: '{{ item }}'
+        owner: root
+        group: root
+        mode: 0600
+      loop: "{{ ssh_host_keys.files | map(attribute='path') | list }}"
+  when:
+    - rhel8_cis_rule_5_2_4
+  tags:
+    - level1
+    - level2
+    - patch
+    - rule_5.2.4
+
+- name: SCORED | 5.2.5 | PATCH | Ensure SSH LogLevel is appropriate
+  lineinfile:
+    state: present
+    dest: /etc/ssh/sshd_config
+    regexp: ^LogLevel
+    line: LogLevel INFO
+    validate: /usr/sbin/sshd -T -f %s
+  when:
+    - rhel8_cis_rule_5_2_5
+  tags:
+    - level1
+    - level2
+    - patch
+    - rule_5.2.5
+
+- name: SCORED | 5.2.6 | PATCH | Ensure SSH X11 forwarding is disabled
+  lineinfile:
+    state: present
+    dest: /etc/ssh/sshd_config
+    regexp: ^X11Forwarding
+    line: X11Forwarding no
+    validate: /usr/sbin/sshd -T -f %s
+  when:
+    - rhel8_cis_rule_5_2_6
+  tags:
+    - level1
+    - level2
+    - patch
+    - rule_5.2.6
+
+- name: SCORED | 5.2.7 | PATCH | Ensure SSH MaxAuthTries is set to 4 or less
+  lineinfile:
+    state: present
+    dest: /etc/ssh/sshd_config
+    regexp: ^(#)?MaxAuthTries \d
+    line: MaxAuthTries 4
+    validate: /usr/sbin/sshd -T -f %s
+  when:
+    - rhel8_cis_rule_5_2_7
+  tags:
+    - level1
+    - level2
+    - patch
+    - rule_5.2.7
+
+- name: SCORED | 5.2.8 | PATCH | Ensure SSH IgnoreRhosts is enabled
+  lineinfile:
+    state: present
+    dest: /etc/ssh/sshd_config
+    regexp: ^IgnoreRhosts
+    line: IgnoreRhosts yes
+    validate: /usr/sbin/sshd -T -f %s
+  when:
+    - rhel8_cis_rule_5_2_8
+  tags:
+    - level1
+    - level2
+    - patch
+    - rule_5.2.8
+
+- name: SCORED | 5.2.9 | PATCH | Ensure SSH HostbasedAuthentication is disabled
+  lineinfile:
+    state: present
+    dest: /etc/ssh/sshd_config
+    regexp: ^HostbasedAuthentication
+    line: HostbasedAuthentication no
+    validate: /usr/sbin/sshd -T -f %s
+  when:
+    - rhel8_cis_rule_5_2_9
+  tags:
+    - level1
+    - level2
+    - patch
+    - rule_5.2.9
+
+- name: SCORED | 5.2.10 | PATCH | Ensure SSH root login is disabled
+  lineinfile:
+    state: present
+    dest: /etc/ssh/sshd_config
+    regexp: ^PermitRootLogin
+    line: PermitRootLogin no
+    validate: /usr/sbin/sshd -T -f %s
+  when:
+    - rhel8_cis_rule_5_2_10
+  tags:
+    - level1
+    - level2
+    - patch
+    - rule_5.2.10
+
+- name: SCORED | 5.2.11 | PATCH | Ensure SSH PermitEmptyPasswords is disabled
+  lineinfile:
+    state: present
+    dest: /etc/ssh/sshd_config
+    regexp: ^PermitEmptyPasswords
+    line: PermitEmptyPasswords no
+    validate: /usr/sbin/sshd -T -f %s
+  when:
+    - rhel8_cis_rule_5_2_11
+  tags:
+    - level1
+    - level2
+    - patch
+    - rule_5.2.11
+
+- name: SCORED | 5.2.12 | PATCH | Ensure SSH PermitUserEnvironment is disabled
+  lineinfile:
+    state: present
+    dest: /etc/ssh/sshd_config
+    regexp: ^PermitUserEnvironment
+    line: PermitUserEnvironment no
+    validate: /usr/sbin/sshd -T -f %s
+  when:
+    - rhel8_cis_rule_5_2_12
+  tags:
+    - level1
+    - level2
+    - patch
+    - rule_5.2.12
+
+- name: SCORED | 5.2.13 | PATCH | Ensure SSH Idle Timeout Interval is configured
+  block:
+    - name: SCORED | 5.2.13 | PATCH | Ensure SSH Idle Timeout Interval is configured
+      lineinfile:
+        state: present
+        dest: /etc/ssh/sshd_config
+        regexp: ^ClientAliveInterval
+        line: ClientAliveInterval {{ rhel8_cis_sshd['clientaliveinterval'] }}
+        validate: /usr/sbin/sshd -T -f %s
+
+    - name: SCORED | 5.2.13 | PATCH | Ensure SSH ClientAliveCountMax set to <= 3
+      lineinfile:
+        state: present
+        dest: /etc/ssh/sshd_config
+        regexp: ^ClientAliveCountMax
+        line: ClientAliveCountMax {{ rhel8_cis_sshd['clientalivecountmax'] }}
+        validate: /usr/sbin/sshd -T -f %s
+  when:
+    - rhel8_cis_rule_5_2_13
+  tags:
+    - level1
+    - level2
+    - patch
+    - rule_5.2.13
+
+- name: SCORED | 5.2.14 | PATCH | Ensure SSH LoginGraceTime is set to one minute or
+    less
+  lineinfile:
+    state: present
+    dest: /etc/ssh/sshd_config
+    regexp: ^LoginGraceTime
+    line: LoginGraceTime {{ rhel8_cis_sshd['logingracetime'] }}
+    validate: /usr/sbin/sshd -T -f %s
+  when:
+    - rhel8_cis_rule_5_2_14
+  tags:
+    - level1
+    - level2
+    - patch
+    - rule_5.2.14
+
+- name: SCORED | 5.2.15 | PATCH | Ensure SSH warning banner is configured
+  lineinfile:
+    state: present
+    dest: /etc/ssh/sshd_config
+    regexp: ^Banner
+    line: Banner /etc/issue.net
+    validate: /usr/sbin/sshd -T -f %s
+  when:
+    - rhel8_cis_rule_5_2_15
+  tags:
+    - level1
+    - level2
+    - patch
+    - rule_5.2.15
+
+- name: SCORED | 5.2.16 | PATCH | Ensure SSH PAM is enabled
+  lineinfile:
+    state: present
+    dest: /etc/ssh/sshd_config
+    regexp: ^UsePAM
+    line: UsePAM yes
+    validate: /usr/sbin/sshd -T -f %s
+  when:
+    - rhel8_cis_rule_5_2_16
+  tags:
+    - level1
+    - level2
+    - patch
+    - rule_5.2.16
+
+- name: SCORED | 5.2.17 | PATCH | Ensure SSH AllowTcpForwarding is disabled
+  lineinfile:
+    state: present
+    dest: /etc/ssh/sshd_config
+    regexp: ^AllowTcpForwarding
+    line: AllowTcpForwarding no
+    validate: /usr/sbin/sshd -T -f %s
+  when:
+    - rhel8_cis_rule_5_2_17
+  tags:
+    - level1
+    - level2
+    - patch
+    - rule_5.2.17
+
+- name: SCORED | 5.2.18 | PATCH | Ensure SSH MaxStartups is configured
+  lineinfile:
+    state: present
+    dest: /etc/ssh/sshd_config
+    regexp: ^MaxStartups
+    line: MaxStartups {{ rhel8_cis_sshd['maxstartups'] }}
+    validate: /usr/sbin/sshd -T -f %s
+  when:
+    - rhel8_cis_rule_5_2_18
+  tags:
+    - level1
+    - level2
+    - patch
+    - rule_5.2.18
+
+- name: SCORED | 5.2.19 | PATCH | Ensure SSH MaxSessions is set to 4 or less
+  lineinfile:
+    state: present
+    dest: /etc/ssh/sshd_config
+    regexp: ^MaxSessions
+    line: MaxSessions 4
+    validate: /usr/sbin/sshd -T -f %s
+  when:
+    - rhel8_cis_rule_5_2_19
+  tags:
+    - level1
+    - level2
+    - patch
+    - rule_5.2.19
+
+
+- name: SCORED | 5.2.20 | PATCH | Ensure system-wide crypto policy is not over-ridden
+  lineinfile:
+    dest: /etc/sysconfig/sshd
+    regexp: ^\s*CRYPTO_POLICY\s*=\s*.*$
+    state: absent
+  when:
+    - rhel8_cis_rule_5_2_20
+  tags:
+    - level1
+    - level2
+    - patch
+    - rule_5.2.20
+
+- name: SCORED | 5.3.1 | PATCH | Create custom authselect profile
+  block:
+    - name: SCORED | 5.3.1 | PATCH | Create custom authselect profile - search profile
+      shell: authselect list | grep custom/{{ rhel8_cis_authselect_profile }}
+      register: authselect_list_profiles
+      changed_when: false
+      failed_when: false
+
+    - name: SCORED | 5.3.1 | PATCH | Create custom authselect profile - create profile
+      command: authselect create-profile {{ rhel8_cis_authselect_profile }} -b sssd --symlink-meta
+      when:
+        - authselect_list_profiles.rc != 0
+  when:
+    - rhel8_cis_rule_5_3_1
+  tags:
+    - level1
+    - level2
+    - patch
+    - rule_5.3.1
+
+- name: SCORED | 5.3.2/3 | PATCH | Select authselect profile
+  block:
+    - name: SCORED | 5.3.2 | PATCH | Select authselect profile - find current profile
+      shell: "authselect current | grep \"Profile ID\" | sed 's@Profile ID: @@'"
+      register: authselect_current_profile
+      changed_when: false
+      failed_when: false
+
+    - name: SCORED | 5.3.2/3 | PATCH | Select authselect profile - select profile
+      command: authselect select custom/{{ rhel8_cis_authselect_profile }} {{  rhel8_cis_rule_5_3_3 | ternary("with-faillock", "") }} --force
+      when:
+        - authselect_current_profile.rc == 0
+        - authselect_current_profile.stdout != "/".join(["custom", rhel8_cis_authselect_profile])
+  when:
+    - rhel8_cis_rule_5_3_2
+    - rhel8_cis_rule_5_3_3
+  tags:
+    - level1
+    - level2
+    - patch
+    - rule_5.3.2
+    - rule_5.3.3
+
+- name: SCORED | 5.4.1 | PATCH | Ensure password creation requirements are configured
+  lineinfile:
+    state: present
+    dest: /etc/security/pwquality.conf
+    regexp: ^{{ item.key }}
+    line: '{{ item.key }} = {{ item.value }}'
+  loop:
+    - {key: minlen, value: '14'}
+    - {key: dcredit, value: '-1'}
+    - {key: ucredit, value: '-1'}
+    - {key: ocredit, value: '-1'}
+    - {key: lcredit, value: '-1'}
+  when:
+    - rhel8_cis_rule_5_4_1
+  tags:
+    - level1
+    - level2
+    - patch
+    - rule_5.4.1
+
+- name: SCORED | 5.4.2 | PATCH | Ensure lockout for failed password attempts is configured
+  command: /bin/true
+  changed_when: no
+  when:
+    - rhel8_cis_rule_5_4_2
+  tags:
+    - level1
+    - level2
+    - patch
+    - rule_5.4.2
+    - notimplemented
+
+- name: SCORED | 5.4.3 | PATCH | Ensure password reuse is limited
+  command: /bin/true
+  changed_when: no
+  when:
+    - rhel8_cis_rule_5_4_3
+  tags:
+    - level1
+    - level2
+    - patch
+    - rule_5.4.3
+    - notimplemented
+
+- name: SCORED | 5.4.4 | PATCH | Ensure password hashing algorithm is SHA-512
+  command: authconfig --passalgo=sha512 --update
+  changed_when: no
+  failed_when: no
+  when:
+    - rhel8_cis_rule_5_4_4
+  tags:
+    - level1
+    - level2
+    - patch
+    - rule_5.4.4
+
+- name: SCORED | 5.5.1.1 | PATCH | Ensure password expiration is 365 days or less
+  lineinfile:
+    state: present
+    dest: /etc/login.defs
+    regexp: ^PASS_MAX_DAYS
+    line: PASS_MAX_DAYS {{ rhel8_cis_pass['max_days'] }}
+  when:
+    - rhel8_cis_rule_5_5_1_1
+  tags:
+    - level1
+    - level2
+    - patch
+    - rule_5.4.1.1
+
+- name: SCORED | 5.5.1.2 | PATCH | Ensure minimum days between password changes is
+    7 or more
+  lineinfile:
+    state: present
+    dest: /etc/login.defs
+    regexp: ^PASS_MIN_DAYS
+    line: PASS_MIN_DAYS {{ rhel8_cis_pass['min_days'] }}
+  when:
+    - rhel8_cis_rule_5_5_1_2
+  tags:
+    - level1
+    - level2
+    - patch
+    - rule_5.5.1.2
+
+- name: SCORED | 5.5.1.3 | PATCH | Ensure password expiration warning days is 7 or
+    more
+  lineinfile:
+    state: present
+    dest: /etc/login.defs
+    regexp: ^PASS_WARN_AGE
+    line: PASS_WARN_AGE {{ rhel8_cis_pass['warn_age'] }}
+  when:
+    - rhel8_cis_rule_5_5_1_3
+  tags:
+    - level1
+    - level2
+    - patch
+    - rule_5.5.1.3
+
+- name: SCORED | 5.5.1.4 | PATCH | Ensure inactive password lock is 30 days or less
+  command: /bin/true
+  changed_when: no
+  when:
+    - rhel8_cis_rule_5_5_1_4
+  tags:
+    - level1
+    - level2
+    - patch
+    - rule_5.5.1.4
+    - notimplemented
+
+- name: SCORED | 5.5.2 | PATCH | Ensure system accounts are secured
+  block:
+    - name: SCORED | 5.5.2 | CHECK | Ensure system accounts are secured - find users
+      shell: "awk -F: '($3 < {{ rhel8_cis_min_uid }}) {print $1 }' /etc/passwd"
+      changed_when: false
+      check_mode: false
+      register: system_account
+
+    - name: SCORED | 5.5.2 | PATCH | Ensure system accounts are secured - lock users
+      user:
+        name: "{{ item }}"
+        password_lock: true
+      with_items:
+        - "{{ system_account.stdout_lines }}"
+      when:
+        - item != "root"
+
+    - name: SCORED | 5.5.2 | PATCH | Ensure system accounts are secured - set shell to nologin
+      user:
+        name: "{{ item }}"
+        shell: /sbin/nologin
+      with_items:
+        - "{{ system_account.stdout_lines }}"
+      when:
+        - item != "root"
+        - item != "sync"
+        - item != "shutdown"
+        - item != "halt"
+  when:
+    - rhel8_cis_rule_5_5_2
+  tags:
+    - level1
+    - level2
+    - patch
+    - rule_5.5.2
+
+- name: SCORED| 5.5.3 | PATCH | Ensure default user shell timeout is 900 seconds or less
+  lineinfile:
+    state: present
+    dest: "{{ item }}"
+    create: true
+    regexp: '^TMOUT='
+    line: "TMOUT={{ rhel8_cis_shell_timeout }} ; export TMOUT"
+    mode: 0644
+  when:
+    - rhel8_cis_rule_5_5_3
+  loop:
+    - /etc/bashrc
+    - /etc/profile
+  tags:
+    - level1
+    - level2
+    - patch
+    - rule_5.5.3
+
+- name: SCORED | 5.5.4 | PATCH | Ensure default group for the root account is GID
+    0
+  command: usermod -g 0 root
+  changed_when: no
+  failed_when: no
+  when:
+    - rhel8_cis_rule_5_5_4
+  tags:
+    - level1
+    - level2
+    - patch
+    - rule_5.5.4
+
+- name: SCORED | 5.5.5 | PATCH | Ensure default user umask is 027 or more restrictive
+  block:
+    - name: SCORED | 5.5.5 | PATCH | Ensure default user umask is 027 or more restrictive - /etc/bashrc
+      replace:
+        path: /etc/bashrc
+        regexp: (^\s+umask) 002
+        replace: \1 027
+
+    - name: SCORED | 5.5.5 | PATCH | Ensure default user umask is 027 or more restrictive - /etc/profile
+      replace:
+        path: /etc/profile
+        regexp: (^\s+umask) 002
+        replace: \1 027
+  when:
+    - rhel8_cis_rule_5_5_5
+  tags:
+    - level1
+    - level2
+    - patch
+    - rule_5.5.5
+
+- name: NOTSCORED | 5.6 | PATCH | Ensure root login is restricted to system console
+  command: /bin/true
+  changed_when: no
+  tags:
+    - level1
+    - level2
+    - patch
+    - rule_5.6
+    - notimplemented
+
+- name: SCORED | 5.7 | PATCH | Ensure access to the su command is restricted
+  lineinfile:
+    state: present
+    dest: /etc/pam.d/su
+    regexp: ^(#)?auth\s+required\s+pam_wheel\.so
+    line: auth           required        pam_wheel.so use_uid
+  when:
+    - rhel8_cis_rule_5_7
+  tags:
+    - level1
+    - level2
+    - patch
+    - rule_5.7
+
+- name: SCORED | 5.7 | PATCH | Ensure access to the su command is restricted - wheel
+    group contains root
+  user:
+    name: root
+    groups: wheel
+  when:
+    - rhel8_cis_rule_5_7
+  tags:
+    - level1
+    - level2
+    - patch
+    - rule_5.7

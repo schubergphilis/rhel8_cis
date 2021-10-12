@@ -1,0 +1,10 @@
+- hosts: all
+  name: MOLECULE | Converge
+  tasks:
+  - include_role:
+      name: rhel8_cis
+    name: MOLECULE | Include role rhel8_cis
+    tags:
+      - always
+  vars:
+    rhel8_cis_development: false

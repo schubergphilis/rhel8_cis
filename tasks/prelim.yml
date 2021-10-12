@@ -1,0 +1,42 @@
+# Preliminary tasks that should always be run
+
+- name: PRELIM | Gather the rpm package facts
+  package_facts:
+    manager: auto
+
+- name: PRELIM | Check to see if we are booting with EFI or UEFI
+  set_fact:
+    booted_with_efi: "{{ ansible_facts['mounts'] | selectattr('mount', 'equalto',\
+      \ '/boot/efi') | list | length > 0 }}"
+  changed_when: no
+  check_mode: no
+  args:
+    warn: false
+
+- name: PRELIM | check bootloader - /boot/grub2/grub.cfg
+  stat:
+    path: /boot/grub2/grub.cfg
+  register: grub_cfg
+  tags:
+    - level1
+    - scored
+    - grub
+    - patch
+    - always
+
+- name: PRELIM | check bootloader - /etc/default/grub
+  stat:
+    path: /etc/default/grub
+  register: grub_default
+  tags:
+    - level1
+    - scored
+    - grub
+    - patch
+    - always
+
+- name: PRELIM | List user accounts
+  command: "awk -F: '{print $1}' /etc/passwd"
+  register: rhel8_cis_users
+  changed_when: no
+  check_mode: no

@@ -1,0 +1,48 @@
+# tasks file for rhel8_cis
+- name: Check OS family
+  fail:
+    msg: This role can only be run against RHEL/Rocky 8 {{ ansible_os_family }}/{{ ansible_distribution
+      }}/{{ ansible_distribution_major_version }} is not supported.
+  when:
+    - not (ansible_os_family == 'RedHat' and ansible_distribution_major_version is version('8'))
+  tags:
+    - always
+
+- name: Check ansible version
+  fail:
+    msg: You must use ansible 2.9 or greater
+  when: ansible_version.full is version('2.9', '<')
+  tags:
+    - always
+
+- include: prelim.yml
+  become: yes
+  tags:
+    - prelim_tasks
+    - always
+
+- include: section1.yml
+  become: yes
+  when: rhel8_cis_section1
+  tags:
+    - rhel8_cis_section1
+
+- include: section2.yml
+  become: yes
+  when: rhel8_cis_section2
+
+- include: section3.yml
+  become: yes
+  when: rhel8_cis_section3
+
+- include: section4.yml
+  become: yes
+  when: rhel8_cis_section4
+
+- include: section5.yml
+  become: yes
+  when: rhel8_cis_section5
+
+- include: section6.yml
+  become: yes
+  when: rhel8_cis_section6
