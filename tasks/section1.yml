@@ -397,6 +397,7 @@
     enabled: no
   when:
     - "'rhnsd' in ansible_facts.packages"
+    - not rhel8_cis_rhnsd_required
     - rhel8_cis_rule_1_2_2
   tags:
     - level2

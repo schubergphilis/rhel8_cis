@@ -75,13 +75,6 @@ rhel8_cis_dovecot_server: false
 rhel8_cis_httpd_server: false
 rhel8_cis_vsftpd_server: false
 rhel8_cis_named_server: false
-rhel8_cis_bind: false
-rhel8_cis_vsftpd: false
-rhel8_cis_httpd: false
-rhel8_cis_dovecot: false
-rhel8_cis_samba: false
-rhel8_cis_squid: false
-rhel8_cis_net_snmp: false
 ```
 
 ##### Designate server as a Mail server

@@ -88,6 +88,7 @@
     enabled: no
   when:
     - "'rsync-daemon' in ansible_facts.packages"
+    - not rhel8_cis_rsyncd_server
     - rhel8_cis_rule_2_2_3
   tags:
     - level1
@@ -101,6 +102,7 @@
     enabled: no
   when:
     - "'avahi' in ansible_facts.packages"
+    - not rhel8_cis_avahi_server
     - rhel8_cis_rule_2_2_4
   tags:
     - level1
@@ -117,6 +119,7 @@
     enabled: no
   when:
     - "'net-snmp' in ansible_facts.packages"
+    - not rhel8_cis_snmp_server
     - rhel8_cis_rule_2_2_5
   tags:
     - level1
@@ -130,6 +133,7 @@
     enabled: no
   when:
     - "'squid' in ansible_facts.packages"
+    - not rhel8_cis_squid_server
     - rhel8_cis_rule_2_2_6
   tags:
     - level1
@@ -143,6 +147,7 @@
     enabled: no
   when:
     - "'samba' in ansible_facts.packages"
+    - not rhel8_cis_smb_server
     - rhel8_cis_rule_2_2_7
   tags:
     - level1
@@ -156,6 +161,7 @@
     enabled: no
   when:
     - "'dovecot' in ansible_facts.packages"
+    - not rhel8_cis_dovecot_server
     - rhel8_cis_rule_2_2_8
   tags:
     - level1
@@ -169,6 +175,7 @@
     enabled: no
   when:
     - "'httpd' in ansible_facts.packages"
+    - not rhel8_cis_httpd_server
     - rhel8_cis_rule_2_2_9
   tags:
     - level1
@@ -182,6 +189,7 @@
     enabled: no
   when:
     - "'vsftpd' in ansible_facts.packages"
+    - not rhel8_cis_vsftpd_server
     - rhel8_cis_rule_2_2_10
   tags:
     - level1
@@ -195,6 +203,7 @@
     enabled: no
   when:
     - "'bind' in ansible_facts.packages or 'bind-chroot' in ansible_facts.packages"
+    - not rhel8_cis_named_server
     - rhel8_cis_rule_2_2_11
   tags:
     - level1
@@ -208,6 +217,7 @@
     enabled: no
   when:
     - "'nfs-utils' in ansible_facts.packages"
+    - not rhel8_cis_nfs_server
     - rhel8_cis_rule_2_2_7
   tags:
     - level1
@@ -225,6 +235,7 @@
     enabled: no
   when:
     - "'rpcbind' in ansible_facts.packages"
+    - not rhel8_cis_rpc_server
     - rhel8_cis_rule_2_2_13
   tags:
     - level1
@@ -242,6 +253,7 @@
     enabled: no
   when:
     - "'slapd' in ansible_facts.packages"
+    - not rhel8_cis_ldap_server
     - rhel8_cis_rule_2_2_14
   tags:
     - level1
@@ -258,6 +270,7 @@
     enabled: no
   when:
     - "'dhcpd' in ansible_facts.packages"
+    - not rhel8_cis_dhcp_server
     - rhel8_cis_rule_2_2_15
   tags:
     - level1
@@ -274,6 +287,7 @@
     enabled: no
   when:
     - "'cups' in ansible_facts.packages"
+    - not rhel8_cis_cups_server
     - rhel8_cis_rule_2_2_16
   tags:
     - level1
@@ -290,6 +304,7 @@
     enabled: no
   when:
     - "'ypserv' in ansible_facts.packages"
+    - not rhel8_cis_nis_server
     - rhel8_cis_rule_2_2_17
   tags:
     - level1
