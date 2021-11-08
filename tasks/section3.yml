@@ -362,6 +362,7 @@
         - "'nftables' in ansible_facts.packages"
   when:
     - rhel8_cis_firewall == "firewalld"
+    - rhel8_cis_rule_3_4_2
   tags:
     - level1
     - patch
