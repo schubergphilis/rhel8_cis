@@ -420,7 +420,7 @@
 
 - name: SCORED | 1.2.4 | PATCH | Ensure gpgcheck is globally activated
   replace:
-    name: /etc/yum.conf
+    path: /etc/yum.conf
     regexp: ^gpgcheck=0
     replace: gpgcheck=1
   when:
@@ -442,7 +442,7 @@
 
     - name: SCORED | 1.2.4 | PATCH | Ensure gpgcheck is globally activated - repos
       replace:
-        name: '{{ item }}'
+        path: '{{ item }}'
         regexp: ^gpgcheck=0
         replace: gpgcheck=1
       loop: "{{ package_repos.files | map(attribute='path') | list }}"
@@ -450,7 +450,7 @@
 
     - name: SCORED | 1.2.4 | PATCH |  Ensure gpgcheck is globally activated - main configuration
       replace:
-        dest: /etc/yum.conf
+        path: /etc/yum.conf
         regexp: '^\s*(gpgcheck\s*=\s*)0$'
         replace: '\g<1>1'
   when:
@@ -738,7 +738,7 @@
 
 - name: SCORED | 1.7.1.2 | PATCH | Ensure SELinux is not disabled in bootloader configuration
   replace:
-    dest: /boot/grub2/grubenv
+    path: /boot/grub2/grubenv
     regexp: kernelopts=(\S+\s+)*(selinux=0|enforcing=0)+\b
     follow: yes
   register: selinux_grub_patch
