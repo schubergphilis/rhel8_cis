@@ -740,7 +740,6 @@
   replace:
     path: /boot/grub2/grubenv
     regexp: kernelopts=(\S+\s+)*(selinux=0|enforcing=0)+\b
-    follow: yes
   register: selinux_grub_patch
   ignore_errors: yes
   notify: generate new grub config
