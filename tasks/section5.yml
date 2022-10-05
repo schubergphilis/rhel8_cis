@@ -763,15 +763,20 @@
     - patch
     - rule_5.5.5
 
-- name: NOTSCORED | 5.6 | PATCH | Ensure root login is restricted to system console
-  command: /bin/true
-  changed_when: no
+- name: SCORED | 5.6 | PATCH | Ensure root login is restricted to system console
+  file:
+    src: etc/securetty
+    dest: /etc/securetty
+    owner: root
+    group: root
+    mode: 0600
+  when:
+    - rhel8_cis_rule_5_6
   tags:
     - level1
     - level2
     - patch
     - rule_5.6
-    - notimplemented
 
 - name: SCORED | 5.7 | PATCH | Ensure access to the su command is restricted
   lineinfile:
