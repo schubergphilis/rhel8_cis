@@ -18,6 +18,7 @@
 
 - name: systemd restart tmp.mount
   become: yes
+  ignore_errors: true
   systemd:
     name: tmp.mount
     daemon_reload: yes
@@ -27,6 +28,7 @@
 
 - name: systemd restart var-tmp.mount
   become: yes
+  ignore_errors: true
   systemd:
     name: var-tmp.mount
     daemon_reload: yes
